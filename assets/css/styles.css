@@ -2749,6 +2749,31 @@ body.cursor-hover .cursor-dot{
 .home-foot{ text-align:center; margin:18px 0 8px; }
 @media(max-width:480px){ .home-hero{ padding:18px 8px 12px; } .home-section{ padding:14px; margin:14px auto; } }
 
+/* ===== Icon system — single family, consistent stroke ===== */
+.icon{ display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; color:currentColor; }
+.icon svg{ width:100%; height:100%; display:block; }
+.icon-xs{ width:14px; height:14px; } .icon-sm{ width:16px; height:16px; } .icon-md{ width:20px; height:20px; }
+.icon-lg{ width:28px; height:28px; } .icon-xl{ width:36px; height:36px; }
+.icon-muted{ color:var(--text-dim); } .icon-accent{ color:var(--accent); }
+.card-icon{ width:36px; height:36px; display:grid; place-items:center; border-radius:10px; background:var(--accent-dim); border:1px solid color-mix(in srgb, var(--accent) 16%, transparent); color:var(--accent); flex-shrink:0; }
+.card-icon svg{ width:18px; height:18px; }
+/* illustration system */
+.illustration{ display:block; width:100%; height:auto; }
+.illustration-sm{ max-width:180px; } .illustration-md{ max-width:320px; } .illustration-lg{ max-width:520px; }
+.hero-visual{ width:100%; max-width:520px; margin:0 auto; opacity:.95; }
+.hero-visual svg{ width:100%; height:auto; }
+.section-visual{ display:flex; align-items:center; gap:10px; }
+.empty-state-visual{ display:grid; place-items:center; padding:24px 0 8px; color:var(--text-dim); }
+.empty-state-visual svg{ width:96px; height:96px; opacity:.9; }
+.decor-bg{ position:relative; overflow:hidden; }
+.decor-bg::before{ content:""; position:absolute; inset:0; background:
+  radial-gradient(circle at 20% 20%, color-mix(in srgb, var(--accent) 7%, transparent) 0 1px, transparent 1px),
+  radial-gradient(circle at 80% 60%, color-mix(in srgb, var(--accent-alt) 5%, transparent) 0 1px, transparent 1px);
+  background-size: 28px 28px, 36px 36px; opacity:.6; pointer-events:none; mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent); }
+/* theme-aware illustration vars */
+:root{ --illustration-primary: var(--text); --illustration-secondary: var(--text-muted); --illustration-muted: var(--text-dim); --illustration-accent: var(--accent); }
+@media (prefers-reduced-motion: reduce){ .hero-visual, .card-icon, .empty-state-visual{ animation:none !important; } }
+
 /* ===================================================================
    Command Bank 9999% — Premium Hero, Filters, Cards, Drawer
    =================================================================== */
@@ -3178,3 +3203,16 @@ a.ext-modal-cta svg{ width:15px; height:15px; }
   .cl-pn{ flex-direction:column; }
   .cl-pn-spacer{ display:none; }
 }
+/* Roadmap path visual — technical progression */
+.roadmap-path{ display:flex; align-items:center; gap:0; padding:12px 8px 16px; overflow-x:auto; scrollbar-width:thin; }
+.roadmap-line{ display:none; }
+.roadmap-node{ display:flex; flex-direction:column; align-items:center; gap:6px; min-width:72px; }
+.roadmap-dot{ width:36px; height:36px; display:grid; place-items:center; border-radius:50%; border:2px solid var(--border); background:var(--bg-secondary); color:var(--text-dim); }
+.roadmap-dot svg{ width:18px; height:18px; }
+.roadmap-node.is-ready .roadmap-dot{ border-color:var(--accent); background:var(--accent-dim); color:var(--accent); box-shadow:0 0 0 4px color-mix(in srgb, var(--accent) 12%, transparent); }
+.roadmap-node-label{ font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--text-dim); }
+.roadmap-connector{ flex:1; height:2px; min-width:24px; background:var(--border); margin:0 4px; position:relative; top:-12px; }
+.roadmap-connector.is-done{ background:var(--accent); opacity:.6; }
+.roadmap-card-head{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.roadmap-status{ margin-left:auto; font-size:14px; color:var(--accent); }
+@media (max-width:640px){ .hero-visual{ display:none; } .roadmap-path{ gap:4px; } .roadmap-node{ min-width:56px; } }

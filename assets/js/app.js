@@ -971,11 +971,11 @@ async function getContentLibrary() {
   if (_libraryFetch) return _libraryFetch;
   _libraryFetch = (async () => {
     try {
-      const r = await fetch('assets/data/content-library.json?v=33');
+      const r = await fetch('assets/data/content-library.json?v=34');
       if (r.ok) { _libraryCache = await r.json(); return _libraryCache; }
     } catch (_e) {}
     try {
-      await loadScriptFallback('assets/js/data-library.js?v=33');
+      await loadScriptFallback('assets/js/data-library.js?v=34');
       if (window.DATA_CONTENT_LIBRARY) { _libraryCache = window.DATA_CONTENT_LIBRARY; return _libraryCache; }
     } catch (_e) {}
     return null;
@@ -992,11 +992,11 @@ async function getCmdGuides() {
   if (_cmdGuidesFetch) return _cmdGuidesFetch;
   _cmdGuidesFetch = (async () => {
     try {
-      const r = await fetch('assets/data/cmd-guides.json?v=33');
+      const r = await fetch('assets/data/cmd-guides.json?v=34');
       if (r.ok) { _cmdGuidesCache = await r.json(); return _cmdGuidesCache; }
     } catch (_e) {}
     try {
-      await loadScriptFallback('assets/js/data-cmd-guides.js?v=33');
+      await loadScriptFallback('assets/js/data-cmd-guides.js?v=34');
       if (window.DATA_CMD_GUIDES) { _cmdGuidesCache = window.DATA_CMD_GUIDES; return _cmdGuidesCache; }
     } catch (_e) {}
     _cmdGuidesCache = {};
@@ -1533,9 +1533,21 @@ function renderHome(){
     return v;
   }
   let html = '';
-  html += `<div class="home-hero">
+  html += `<div class="home-hero decor-bg">
     <h1 class="home-title">Linux101</h1>
     <p class="home-tagline">Linux knowledge without the noise.</p>
+    <div class="hero-visual" aria-hidden="true"><svg viewBox="0 0 640 140" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
+      <rect x="20" y="20" width="170" height="100" rx="8" stroke="var(--border)" fill="var(--bg-secondary)"/><circle cx="34" cy="32" r="4" fill="var(--accent)"/><circle cx="48" cy="32" r="4" fill="var(--accent-alt)"/><circle cx="62" cy="32" r="4" fill="var(--border)"/>
+      <rect x="30" y="44" width="70" height="6" rx="2" fill="var(--accent)" opacity=".9"/><rect x="30" y="58" width="120" height="4" rx="2" fill="var(--text-dim)" opacity=".5"/><rect x="30" y="68" width="90" height="4" rx="2" fill="var(--text-dim)" opacity=".35"/><text x="30" y="90" fill="var(--accent)" font-family="JetBrains Mono,monospace" font-size="9">$ learn → practice → build</text>
+      <line x1="190" y1="70" x2="230" y2="70" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="4 4"/><polygon points="230,66 230,74 238,70" fill="var(--accent)"/>
+      <g><rect x="238" y="36" width="76" height="68" rx="8" stroke="var(--border)" fill="var(--bg-tertiary)"/><text x="276" y="58" text-anchor="middle" fill="var(--text)" font-size="8" font-family="Inter,sans-serif" font-weight="700">LINUX</text><text x="276" y="70" text-anchor="middle" fill="var(--text-dim)" font-size="7">filesystem</text><path d="M256 78l8 8 12-8" stroke="var(--accent)" stroke-width="1.2" fill="none"/></g>
+      <line x1="314" y1="70" x2="354" y2="70" stroke="var(--border)" stroke-width="1.5"/><polygon points="354,66 354,74 362,70" fill="var(--border)"/>
+      <g><rect x="362" y="26" width="76" height="32" rx="6" stroke="var(--border)" fill="var(--bg-secondary)"/><circle cx="378" cy="42" r="6" stroke="var(--accent)" fill="none"/><circle cx="378" cy="42" r="2" fill="var(--accent)"/><text x="400" y="45" fill="var(--text)" font-size="7" font-weight="600">Network</text></g>
+      <g><rect x="362" y="64" width="76" height="32" rx="6" stroke="var(--border)" fill="var(--bg-secondary)"/><rect x="374" y="72" width="14" height="14" rx="2" stroke="var(--accent)" fill="none"/><line x1="388" y1="79" x2="398" y2="79" stroke="var(--accent)"/><text x="406" y="84" fill="var(--text)" font-size="7" font-weight="600">Container</text></g>
+      <g><rect x="362" y="102" width="76" height="28" rx="6" stroke="var(--border)" fill="var(--bg-secondary)"/><path d="M374 116l4 4 8-8" stroke="var(--success)" stroke-width="1.2" fill="none"/><text x="392" y="119" fill="var(--text)" font-size="7" font-weight="600">Automate</text></g>
+      <line x1="438" y1="42" x2="478" y2="70" stroke="var(--border)" stroke-width="1.2" opacity=".7"/><line x1="438" y1="80" x2="478" y2="80" stroke="var(--border)" stroke-width="1.2" opacity=".7"/><line x1="438" y1="116" x2="478" y2="90" stroke="var(--border)" stroke-width="1.2" opacity=".7"/>
+      <g><rect x="478" y="48" width="140" height="64" rx="8" stroke="var(--accent)" fill="color-mix(in srgb, var(--accent) 6%, transparent)"/><text x="548" y="68" text-anchor="middle" fill="var(--accent)" font-size="8" font-weight="700">Labs • Practice</text><text x="548" y="80" text-anchor="middle" fill="var(--text-dim)" font-size="7">hands-on • quiz • flashcards</text><circle cx="520" cy="92" r="2" fill="var(--accent)"/><circle cx="540" cy="92" r="2" fill="var(--accent)" opacity=".6"/><circle cx="560" cy="92" r="2" fill="var(--accent)" opacity=".3"/></g>
+    </svg></div>
     <button class="home-search" data-action="open-spotlight" aria-label="Search Linux101">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <span>Search Linux101 — commands, guides, labs…</span>
@@ -1543,24 +1555,29 @@ function renderHome(){
     </button>
     <p class="home-meta">${sections.length} guides · ~${Math.round(totalWords/180)} min · ${cmdCount} commands · <span style="color:var(--accent)">${readCount} read</span></p>
   </div>`;
-  // START HERE
+  // START HERE with icons
   html += `<section class="home-section"><div class="home-section-head"><h2>START HERE</h2><p>New to Linux? Follow this path.</p></div><div class="home-start-grid">`;
   starters.forEach((s,i)=>{
+    const sI = ICONS[s.icon] || ICONS.terminal;
     html += `<button class="home-start-card" data-action="open-content-section" data-section="${escapeHtml(s.id)}" aria-label="Open ${escapeHtml(s.title)}">
       <span class="home-start-num">0${i+1}</span>
+      <span class="card-icon icon-sm" aria-hidden="true">${sI}</span>
       <span class="home-start-body"><span class="home-start-title">${escapeHtml(s.title)}</span><span class="home-start-preview">${escapeHtml(s.preview||'')}</span><span class="home-start-meta">${escapeHtml(s.level)} · ~${libMin(s.words)} min</span></span>
       <span class="home-start-arrow">→</span>
     </button>`;
   });
   html += `</div></section>`;
-  // EXPLORE
+  // EXPLORE with visual category anchors
   html += `<section class="home-section"><div class="home-section-head"><h2>EXPLORE LINUX101</h2><p>Guides grouped by track — data-driven from content-meta.json</p></div><div class="home-tracks">`;
   tracks.forEach(tr=>{
     const list = sections.filter(s=>s.track===tr.id);
     if(!list.length) return;
-    html += `<div class="home-track"><h3 class="home-track-title">${escapeHtml(tr.label)}</h3><span class="home-track-count">${list.length} guides</span><div class="home-track-list">`;
+    const tIconKey = (ICONS._map && ICONS._map[tr.id]) || 'folder';
+    const tIcon = ICONS[tIconKey] || ICONS.folder;
+    html += `<div class="home-track"><div class="section-visual"><span class="card-icon icon-sm" aria-hidden="true">${tIcon}</span><h3 class="home-track-title">${escapeHtml(tr.label)}</h3><span class="home-track-count">${list.length} guides</span></div><div class="home-track-list">`;
     list.slice(0,6).forEach(s=>{
-      html += `<button class="home-topic" data-action="open-content-section" data-section="${escapeHtml(s.id)}"><span class="home-topic-title">${escapeHtml(s.title)}</span><span class="home-topic-level">${escapeHtml(s.level)}</span></button>`;
+      const sIcon = ICONS[s.icon] || ICONS.file;
+      html += `<button class="home-topic" data-action="open-content-section" data-section="${escapeHtml(s.id)}"><span class="icon-xs" aria-hidden="true" style="color:var(--text-dim)">${sIcon}</span><span class="home-topic-title">${escapeHtml(s.title)}</span><span class="home-topic-level">${escapeHtml(s.level)}</span></button>`;
     });
     if(list.length>6) html += `<button class="home-more" data-action="set-view" data-tab="content" data-view="library">+${list.length-6} more in ${escapeHtml(tr.label)} →</button>`;
     html += `</div></div>`;
@@ -1598,6 +1615,36 @@ function renderHome(){
   html += `<div class="home-foot"><a class="sidebar-link" href="https://github.com/EslamNabawy/linux101" target="_blank" rel="noopener">github.com/EslamNabawy/linux101 →</a></div>`;
   return html;
 }
+
+function emptyVisual(kind){
+  const base = 'color:var(--text-dim)';
+  if(kind==='search') return `<div class="empty-state-visual" aria-hidden="true" style="${base}"><svg viewBox="0 0 120 80" width="96" height="64" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="12" y="12" width="64" height="44" rx="6" stroke="var(--border)" fill="var(--bg-secondary)"/><circle cx="24" cy="22" r="2.5" fill="var(--accent)"/><line x1="20" y1="34" x2="64" y2="34" stroke="var(--accent)" opacity=".8"/><line x1="20" y1="42" x2="58" y2="42" stroke="currentColor" opacity=".3"/><circle cx="72" cy="44" r="14" stroke="currentColor" opacity=".5"/><line x1="82" y1="54" x2="92" y2="64" stroke="currentColor"/></svg></div>`;
+  if(kind==='favorites') return `<div class="empty-state-visual" aria-hidden="true" style="${base}"><svg viewBox="0 0 120 80" width="96" height="64" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M60 18l7 14 15 2-11 10 3 15-14-7-14 7 3-15-11-10 15-2z" stroke="var(--border)" fill="var(--bg-secondary)"/><circle cx="60" cy="44" r="3" fill="var(--accent)" opacity=".5"/></svg></div>`;
+  if(kind==='history') return `<div class="empty-state-visual" aria-hidden="true" style="${base}"><svg viewBox="0 0 120 80" width="96" height="64" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="60" cy="40" r="22" stroke="var(--border)"/><path d="M60 28v12l8 8" stroke="var(--accent)"/><circle cx="60" cy="40" r="2" fill="var(--accent)"/></svg></div>`;
+  return `<div class="empty-state-visual" aria-hidden="true" style="${base}"><svg viewBox="0 0 120 80" width="96" height="64" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="20" y="20" width="80" height="40" rx="6" stroke="var(--border)" fill="var(--bg-secondary)"/><line x1="28" y1="36" x2="72" y2="36" stroke="var(--accent)"/><line x1="28" y1="44" x2="64" y2="44" stroke="currentColor" opacity=".3"/></svg></div>`;
+}
+// Icon semantic map — content-driven, single family extension
+(function extendIcons(){
+  if(typeof ICONS==='undefined') return;
+  const add = (k,v)=>{ if(!ICONS[k]) ICONS[k]=v; };
+  add('shield','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l7 4v5c0 5-3.5 9-7 11-3.5-2-7-6-7-11V6l7-4z"/></svg>');
+  add('lock','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>');
+  add('container','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="2" y1="12" x2="22" y2="12"/></svg>');
+  add('workflow','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="7" y="14" width="7" height="7" rx="1"/><path d="M6 10v2a2 2 0 002 2h2"/><path d="M16 10v2a2 2 0 01-2 2h-2"/></svg>');
+  add('beaker','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H15"/><path d="M10 3v6l-4 11h12l-4-11V3"/><line x1="6" y1="14" x2="18" y2="14"/></svg>');
+  add('star','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 9 22 9 16 14 18 21 12 17 6 21 8 14 2 9 9 9 12 2"/></svg>');
+  add('gitBranch','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M6 9v6c0 2 1 3 3 3h3"/><path d="M18 15V9a3 3 0 00-3-3h-3"/></svg>');
+  add('play','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>');
+  add('wrench','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 7a2 2 0 11-4 4l-5 5a2 2 0 01-3 0l1-1a2 2 0 013 0l5-5z"/><path d="M8 7l3 3"/></svg>');
+  add('hardDrive','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="8" cy="10" r="1"/><line x1="12" y1="14" x2="20" y2="14"/><line x1="12" y1="18" x2="20" y2="18"/></svg>');
+  // semantic aliases for track mapping
+  ICONS._map = {
+    foundations:'terminal', 'system-ops':'hardDrive', 'network-security':'shield', 'ops-automation':'container',
+    reference:'book', system:'hardDrive', editing:'file', development:'terminal', storage:'hardDrive',
+    monitoring:'activity', troubleshooting:'wrench', logging:'file', networking:'network', security:'shield',
+    containers:'container', automation:'workflow', data:'database', terminal:'terminal'
+  };
+})();
 
 function breadcrumbs(items) {
   if (!items || !items.length) return '';
@@ -1899,7 +1946,7 @@ function renderSearchResults() {
     const recent = state.recentViews.length
       ? `<div class="links-section"><h3>Recently viewed</h3><div class="topic-links">${state.recentViews.slice(0, 5).map(v => `<button class="topic-link" data-action="go-view" data-view="${escapeHtml(v)}">${escapeHtml(v.replace('notes-', ''))}</button>`).join('')}</div></div>`
       : '';
-    return html + `<div class="no-results">${ICONS.search}<h3>No matches found</h3><p>Try a different search term or synonym.</p></div><div class="links-section"><h3>Popular commands</h3>${pops}</div>${recent}`;
+    return html + `<div class="no-results">${emptyVisual('search')}<h3>No matches found</h3><p>Try a different search term or synonym.</p></div><div class="links-section"><h3>Popular commands</h3>${pops}</div>${recent}`;
   }
 
   const grouped = {};
@@ -2309,9 +2356,14 @@ function renderSpotlight(term){
     box.innerHTML = `<div class="spotlight-empty"><p style="color:var(--text-muted);font-size:13px;margin-bottom:8px">Try a broader term</p><div class="spotlight-hints">${pops}</div></div>`;
     return;
   }
+  const badgeIcon = (sec)=>{
+    const m={Commands:'terminal', Guide:'book', Practice:'beaker', Exercises:'clipboard', Resources:'link', Topic:'hash', 'Day 1':'file','Day 2':'file','Day 3':'file', Lab:'beaker', Flashcards:'layers'};
+    const k = m[sec] || (sec.toLowerCase().includes('command')?'terminal': sec.toLowerCase().includes('guide')?'book':'search');
+    return ICONS[k]||ICONS.search;
+  };
   box.innerHTML = results.map((r,i)=>`
     <button class="spotlight-item ${i===_spotlightIndex?'is-active':''}" role="option" aria-selected="${i===_spotlightIndex?'true':'false'}" data-idx="${i}" data-action="spotlight-pick" data-idxpick="${i}">
-      <span class="spotlight-item-badge">${escapeHtml(r.section)}</span>
+      <span class="spotlight-item-badge"><span class="icon-xs" aria-hidden="true" style="display:inline-flex;vertical-align:-2px;margin-right:4px">${badgeIcon(r.section)}</span>${escapeHtml(r.section)}</span>
       <span class="spotlight-item-title">${highlightMatch(escapeHtml(r.title), term)}</span>
       <span class="spotlight-item-desc">${highlightMatch(escapeHtml(r.desc||''), term)}</span>
     </button>
@@ -2700,7 +2752,10 @@ function renderMergedCheatSheet() {
         <div class="cmd-chips" role="toolbar" aria-label="Filter by category">
           ${cats.map(cat => {
             const count = all.filter(x=>x.category===cat).length;
-            return `<button class="chip ${state.cmdCats.includes(cat) ? 'active' : ''}" data-cat="${escapeHtml(cat)}" data-action="toggle-cmd-cat" data-catval="${escapeHtml(cat)}" aria-pressed="${state.cmdCats.includes(cat) ? 'true' : 'false'}">${escapeHtml(cat)} <span class="chip-count">${count}</span></button>`
+            const lc = cat.toLowerCase();
+            const iconKey = lc.includes('file')||lc.includes('filesystem')?'folder' : lc.includes('network')?'network' : lc.includes('perm')||lc.includes('security')||lc.includes('user')?'shield' : lc.includes('process')||lc.includes('monitor')?'activity' : lc.includes('storage')||lc.includes('disk')?'hardDrive' : lc.includes('container')||lc.includes('docker')?'container' : lc.includes('automation')||lc.includes('ansible')?'workflow' : lc.includes('shell')||lc.includes('bash')?'terminal' : 'folder';
+            const ic = ICONS[iconKey]||ICONS.folder;
+            return `<button class="chip ${state.cmdCats.includes(cat) ? 'active' : ''}" data-cat="${escapeHtml(cat)}" data-action="toggle-cmd-cat" data-catval="${escapeHtml(cat)}" aria-pressed="${state.cmdCats.includes(cat) ? 'true' : 'false'}"><span class="icon-xs" aria-hidden="true">${ic}</span> ${escapeHtml(cat)} <span class="chip-count">${count}</span></button>`
           }).join('')}
         </div>
         <div class="cmd-secondary">
@@ -2928,13 +2983,23 @@ function renderNTIRoadmap() {
     <h2 class="day-part-title">${days.length}-Day Course Outline</h2>
     <div class="roadmap-grid">
   `;
+  const dayIcons = {day1: ICONS.terminal, day2: ICONS.folder, day3: ICONS.network, day4: ICONS.shield, day5: ICONS.activity};
+  // learning path visual — vertical line with nodes
+  html += `<div class="roadmap-path" aria-hidden="true"><div class="roadmap-line"></div>`;
+  days.forEach((d,i)=>{
+    const isReady = readySet.has(d.id);
+    const icon = dayIcons[d.id]||ICONS.book;
+    html += `<div class="roadmap-node ${isReady?'is-ready':'is-soon'}"><span class="roadmap-dot">${icon}</span><span class="roadmap-node-label">Day ${d.id.replace('day','')}</span></div>`;
+    if(i < days.length-1) html += `<div class="roadmap-connector ${isReady?'is-done':''}"></div>`;
+  });
+  html += `</div>`;
   days.forEach(d => {
     const label = d.id.replace('day', 'Day ');
     const isReady = readySet.has(d.id);
+    const icon = dayIcons[d.id]||ICONS.book;
     html += `
       <div class="roadmap-card ${isReady ? '' : 'roadmap-card--soon'}">
-        <div class="roadmap-day">${escapeHtml(label)}</div>
-        <div class="roadmap-title">${escapeHtml(d.title)}</div>
+        <div class="roadmap-card-head"><span class="card-icon icon-sm" aria-hidden="true">${icon}</span><div><div class="roadmap-day">${escapeHtml(label)}</div><div class="roadmap-title">${escapeHtml(d.title)}</div></div><span class="roadmap-status" aria-hidden="true">${isReady?'✓':'○'}</span></div>
         <ul class="roadmap-list">${d.topics.map(t => `<li>${escapeHtml(t)}</li>`).join('')}</ul>
         <button class="roadmap-go" data-action="set-view" data-tab="course" data-view="${escapeHtml(d.id+'-content')}">Open ${escapeHtml(label)} →</button>
       </div>`;
