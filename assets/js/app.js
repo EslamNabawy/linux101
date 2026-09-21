@@ -971,11 +971,11 @@ async function getContentLibrary() {
   if (_libraryFetch) return _libraryFetch;
   _libraryFetch = (async () => {
     try {
-      const r = await fetch('assets/data/content-library.json?v=32');
+      const r = await fetch('assets/data/content-library.json?v=33');
       if (r.ok) { _libraryCache = await r.json(); return _libraryCache; }
     } catch (_e) {}
     try {
-      await loadScriptFallback('assets/js/data-library.js?v=32');
+      await loadScriptFallback('assets/js/data-library.js?v=33');
       if (window.DATA_CONTENT_LIBRARY) { _libraryCache = window.DATA_CONTENT_LIBRARY; return _libraryCache; }
     } catch (_e) {}
     return null;
@@ -992,11 +992,11 @@ async function getCmdGuides() {
   if (_cmdGuidesFetch) return _cmdGuidesFetch;
   _cmdGuidesFetch = (async () => {
     try {
-      const r = await fetch('assets/data/cmd-guides.json?v=32');
+      const r = await fetch('assets/data/cmd-guides.json?v=33');
       if (r.ok) { _cmdGuidesCache = await r.json(); return _cmdGuidesCache; }
     } catch (_e) {}
     try {
-      await loadScriptFallback('assets/js/data-cmd-guides.js?v=32');
+      await loadScriptFallback('assets/js/data-cmd-guides.js?v=33');
       if (window.DATA_CMD_GUIDES) { _cmdGuidesCache = window.DATA_CMD_GUIDES; return _cmdGuidesCache; }
     } catch (_e) {}
     _cmdGuidesCache = {};
