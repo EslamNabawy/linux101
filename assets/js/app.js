@@ -42,15 +42,18 @@ function cycleTheme(current){
 }
 const _validTheme = THEMES.includes(savedState.theme) ? savedState.theme : 'dark';
 
-const TAB_ALIASES = { 'general': 'linux101', 'links': 'linux101' };
-const VIEW_ALIASES = { 'links': 'resources' };
-function normalizeTab(tab){ if(!tab) return 'linux101'; if(TAB_ALIASES[tab]) return TAB_ALIASES[tab]; return tab; }
-function normalizeView(view){ if(!view) return 'cheatsheet'; if(VIEW_ALIASES[view]) return VIEW_ALIASES[view]; return view; }
-const _initialTab = normalizeTab(savedState.tab || 'linux101');
-const _initialView = normalizeView(savedState.view || 'cheatsheet');
+const TAB_ALIASES = { 'general': 'linux101', 'links': 'linux101', '': 'home', 'index': 'home' };
+const VIEW_ALIASES = { 'links': 'resources', 'home': 'home', 'general': 'cheatsheet', 'roadmap7': 'roadmap', 'content-library': 'library' };
+function normalizeTab(tab){ if(!tab) return 'home'; tab=String(tab).toLowerCase().trim(); if(TAB_ALIASES[tab]) return TAB_ALIASES[tab]; if(!['home','linux101','course','quiz','content'].includes(tab)) return tab; return tab; }
+function normalizeView(view){ if(!view) return 'home'; view=String(view).trim(); if(VIEW_ALIASES[view]) return VIEW_ALIASES[view]; return view; }
+const _initialTab = normalizeTab(savedState.tab || 'home');
+const _initialView = normalizeView(savedState.view || 'home');
+// migrate old defaults: cheat sheet was implicit home
+const _migratedTab = (_initialTab==='linux101' && _initialView==='cheatsheet' && !location.hash) ? 'home' : _initialTab;
+const _migratedView = (_initialTab==='linux101' && _initialView==='cheatsheet' && !location.hash) ? 'home' : _initialView;
 const state = {
-  tab: _initialTab,
-  view: _initialView,
+  tab: _migratedTab,
+  view: _migratedView,
   searchTerm: '',
   cmdTerm: savedState.cmdTerm || '',
   cmdCats: savedState.cmdCats || [],
@@ -1324,6 +1327,7 @@ function toggleLabTask(id, el) {
 }
 
 const TABS = [
+  { id: 'home', label: 'Home', views: [{ id: 'home', label: 'Home', icon: 'home' }] },
   { id: 'linux101', label: 'Linux101', views: [
     { id: 'cheatsheet', label: 'Commands', icon: 'terminal' },
     { id: 'topicindex', label: 'Topic Index', icon: 'hash' },
@@ -1346,7 +1350,9 @@ const TABS = [
 ];
 const LEGACY_TABS = ['general', 'links'];
 const VIEW_MAP = {
+  'home': { tab: 'home', view: 'home' },
   'cheatsheet': { tab: 'linux101', view: 'cheatsheet' },
+  'cheatsheet-legacy': { tab: 'linux101', view: 'cheatsheet' },
   'commandsBank': { tab: 'linux101', view: 'cheatsheet' },
   'topicindex': { tab: 'linux101', view: 'topicindex' },
   'exercises': { tab: 'linux101', view: 'exercises' },
@@ -1364,26 +1370,36 @@ const VIEW_MAP = {
   'lab2': { tab: 'course', view: 'day2-lab' },
   'quiz': { tab: 'quiz', view: 'quiz' },
   'content': { tab: 'content', view: 'library' },
-  'content-library': { tab: 'content', view: 'library' }
+  'content-library': { tab: 'content', view: 'library' },
+  'library': { tab: 'content', view: 'library' }
 };
 
-// ===== HASH ROUTER (GitHub Pages deep-link support) =====
+// ===== HASH ROUTER (GitHub Pages deep-link support) canonical + legacy aliases =====
 function buildHash(tab, view) {
-  // normalize: #tab/view  (e.g. #course/day1-content)
-  const t = encodeURIComponent(tab || 'linux101');
-  const v = encodeURIComponent(view || 'cheatsheet');
+  const t = encodeURIComponent(tab || 'home');
+  const v = encodeURIComponent(view || 'home');
+  // home is canonical root: #home/home
   return `#${t}/${v}`;
+}
+function normalizeHashView(tab, view){
+  // legacy view aliases -> canonical
+  if(view==='links') return 'resources';
+  if(view==='roadmap7') return 'roadmap';
+  if(view==='course' && tab==='linux101') return 'roadmap7';
+  return view;
 }
 function parseHash() {
   const raw = (location.hash || '').replace(/^#\/?/, '');
-  if (!raw) return null;
+  if (!raw) return { tab: 'home', view: 'home' };
+  // support bare hash like #linux101/cheatsheet or #general/links
   const hashPart = raw.split('?')[0];
   const slash = hashPart.indexOf('/');
   if (slash === -1) {
     let tab = decodeURIComponent(hashPart);
+    // support old view-only hashes
+    if(VIEW_MAP[tab]) return { tab: VIEW_MAP[tab].tab, view: VIEW_MAP[tab].view };
     tab = normalizeTab(tab);
     if (TABS.find(x => x.id === tab)) return { tab, view: tabDefaultView(tab) };
-    // legacy alias support
     if (LEGACY_TABS.includes(decodeURIComponent(hashPart))) {
       const ntab = normalizeTab(decodeURIComponent(hashPart));
       if (TABS.find(x => x.id === ntab)) return { tab: ntab, view: tabDefaultView(ntab) };
@@ -1393,8 +1409,15 @@ function parseHash() {
   let tab = decodeURIComponent(hashPart.slice(0, slash));
   let viewRaw = hashPart.slice(slash + 1);
   let view = decodeURIComponent(viewRaw.split('#')[0].split('?')[0]);
-  tab = normalizeTab(tab);
-  view = normalizeView(view);
+  // allow old hash without tab: #cheatsheet etc already handled via slash -1
+  // normalize aliases
+  const vm = VIEW_MAP[view];
+  if(vm && !TABS.find(x=>x.id===tab)) { tab = vm.tab; view = vm.view; }
+  else {
+    tab = normalizeTab(tab);
+    view = normalizeView(view);
+    view = normalizeHashView(tab, view);
+  }
   if (!tab || !view) return null;
   // validate tab/view exists
   const tabObj = TABS.find(x => x.id === tab);
@@ -1419,6 +1442,7 @@ function syncHash() {
   setTimeout(() => { _ignoreHash = false; }, 50);
 }
 function titleForView(tab, view) {
+  if(tab==='home' && view==='home') return 'Linux101 — Home';
   const map = {
     'cheatsheet': 'Linux101 — Commands',
     'topicindex': 'Topic Index',
@@ -1483,9 +1507,103 @@ const COURSE_RENDER = {
   'day2-lab': () => renderLabBodyForDay('day2'),
   'day3-content': () => renderNTICanonical('day3')
 };
+// ===== HOME FIRST RENDERING (data-driven from content-meta.json) =====
+function goHome(){ setView('home','home'); }
+function viewLabel(view){
+  const m = { home:'Home', cheatsheet:'Commands', topicindex:'Topic Index', exercises:'Exercises', roadmap7:'Roadmap', resources:'Resources', library:'Guides', quiz:'Practice Lab', roadmap:'Roadmap', 'day1-content':'Day 1', 'day2-content':'Day 2' };
+  if(m[view]) return m[view];
+  const meta = librarySectionMeta(view); if(meta) return meta.title;
+  return view;
+}
+function renderHome(){
+  const sections = (typeof DATA!=='undefined' && DATA.content && DATA.content.sections) ? DATA.content.sections.slice().sort((a,b)=>(a.order||0)-(b.order||0)) : [];
+  const tracks = (typeof DATA!=='undefined' && DATA.content && DATA.content.tracks) ? DATA.content.tracks : LIB_TRACKS;
+  const linkCount = (DATA.helpfulLinks||[]).length;
+  const cmdCount = (function(){ try{ return buildCommandIndex().length;}catch(e){return 0;}})();
+  const totalWords = sections.reduce((a,s)=>a+(s.words||0),0);
+  const readCount = sections.filter(s=> state.readGuides[s.id]).length;
+  // Start here: foundations beginner first, fallback to any beginner
+  let starters = sections.filter(s=> s.track==='foundations' && s.level==='beginner').slice(0,4);
+  if(starters.length<4) starters = starters.concat(sections.filter(s=> s.level==='beginner' && !starters.includes(s)).slice(0,4-starters.length));
+  // Recently visited: resolve to titles
+  const recent = (state.recentViews||[]).filter(v=>v!=='home').slice(0,6);
+  function recentTitle(v){
+    if(VIEW_MAP[v]) { const mm=VIEW_MAP[v]; if(mm.view==='home') return 'Home'; return viewLabel(mm.view); }
+    const meta = librarySectionMeta(v); if(meta) return meta.title;
+    return v;
+  }
+  let html = '';
+  html += `<div class="home-hero">
+    <h1 class="home-title">Linux101</h1>
+    <p class="home-tagline">Linux knowledge without the noise.</p>
+    <button class="home-search" data-action="open-spotlight" aria-label="Search Linux101">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span>Search Linux101 — commands, guides, labs…</span>
+      <span class="home-search-kbd">/</span>
+    </button>
+    <p class="home-meta">${sections.length} guides · ~${Math.round(totalWords/180)} min · ${cmdCount} commands · <span style="color:var(--accent)">${readCount} read</span></p>
+  </div>`;
+  // START HERE
+  html += `<section class="home-section"><div class="home-section-head"><h2>START HERE</h2><p>New to Linux? Follow this path.</p></div><div class="home-start-grid">`;
+  starters.forEach((s,i)=>{
+    html += `<button class="home-start-card" data-action="open-content-section" data-section="${escapeHtml(s.id)}" aria-label="Open ${escapeHtml(s.title)}">
+      <span class="home-start-num">0${i+1}</span>
+      <span class="home-start-body"><span class="home-start-title">${escapeHtml(s.title)}</span><span class="home-start-preview">${escapeHtml(s.preview||'')}</span><span class="home-start-meta">${escapeHtml(s.level)} · ~${libMin(s.words)} min</span></span>
+      <span class="home-start-arrow">→</span>
+    </button>`;
+  });
+  html += `</div></section>`;
+  // EXPLORE
+  html += `<section class="home-section"><div class="home-section-head"><h2>EXPLORE LINUX101</h2><p>Guides grouped by track — data-driven from content-meta.json</p></div><div class="home-tracks">`;
+  tracks.forEach(tr=>{
+    const list = sections.filter(s=>s.track===tr.id);
+    if(!list.length) return;
+    html += `<div class="home-track"><h3 class="home-track-title">${escapeHtml(tr.label)}</h3><span class="home-track-count">${list.length} guides</span><div class="home-track-list">`;
+    list.slice(0,6).forEach(s=>{
+      html += `<button class="home-topic" data-action="open-content-section" data-section="${escapeHtml(s.id)}"><span class="home-topic-title">${escapeHtml(s.title)}</span><span class="home-topic-level">${escapeHtml(s.level)}</span></button>`;
+    });
+    if(list.length>6) html += `<button class="home-more" data-action="set-view" data-tab="content" data-view="library">+${list.length-6} more in ${escapeHtml(tr.label)} →</button>`;
+    html += `</div></div>`;
+  });
+  html += `</div><div class="home-explore-foot"><button class="chip" data-action="set-view" data-tab="content" data-view="library">View all ${sections.length} guides →</button></div></section>`;
+  // QUICK TOOLS
+  html += `<section class="home-section"><div class="home-section-head"><h2>QUICK TOOLS</h2></div><div class="home-tools-grid">
+    <button class="home-tool" data-action="set-view" data-tab="linux101" data-view="cheatsheet"><span class="home-tool-icon">${ICONS.terminal}</span><span class="home-tool-label">Cheat Sheet</span><span class="home-tool-desc">Search ${cmdCount} commands</span></button>
+    <button class="home-tool" data-action="set-view" data-tab="linux101" data-view="exercises"><span class="home-tool-icon">${ICONS.clipboard}</span><span class="home-tool-label">Exercises</span><span class="home-tool-desc">Hands-on drills</span></button>
+    <button class="home-tool" data-action="set-view" data-tab="quiz" data-view="quiz"><span class="home-tool-icon">${ICONS.zap}</span><span class="home-tool-label">Flashcards</span><span class="home-tool-desc">Quiz & memorize</span></button>
+    <button class="home-tool" data-action="set-view" data-tab="linux101" data-view="topicindex"><span class="home-tool-icon">${ICONS.hash||ICONS.folder}</span><span class="home-tool-label">Topic Index</span><span class="home-tool-desc">Cross-topic map</span></button>
+    <button class="home-tool" data-action="set-view" data-tab="quiz" data-view="quiz"><span class="home-tool-icon">${ICONS.check}</span><span class="home-tool-label">Quiz</span><span class="home-tool-desc">Test yourself</span></button>
+    <button class="home-tool" data-action="set-view" data-tab="linux101" data-view="resources"><span class="home-tool-icon">${ICONS.link}</span><span class="home-tool-label">Resources</span><span class="home-tool-desc">${linkCount} links</span></button>
+  </div></section>`;
+  // NTI COURSE
+  html += `<section class="home-section home-section--course"><div class="home-section-head"><h2>NTI LINUX COURSE</h2><p>3-day track — canonical content, notes, labs</p></div><div class="home-course-row">
+    <button class="home-course-step" data-action="set-view" data-tab="course" data-view="roadmap"><span class="home-course-dot">◉</span> Roadmap</button>
+    <span class="home-course-arrow">→</span>
+    <button class="home-course-step" data-action="set-view" data-tab="course" data-view="day1-content">Day 1</button>
+    <span class="home-course-arrow">→</span>
+    <button class="home-course-step" data-action="set-view" data-tab="course" data-view="day2-content">Day 2</button>
+    <span class="home-course-arrow">→</span>
+    <button class="home-course-step" data-action="set-view" data-tab="course" data-view="day1-lab">Labs</button>
+  </div></section>`;
+  // RECENTLY VISITED
+  if(recent.length){
+    html += `<section class="home-section"><div class="home-section-head"><h2>RECENTLY VISITED</h2></div><div class="home-recent">`;
+    recent.forEach(v=>{
+      const title = recentTitle(v);
+      html += `<button class="home-recent-item" data-action="go-view" data-view="${escapeHtml(v)}">${escapeHtml(title)}</button>`;
+    });
+    html += `</div></section>`;
+  }
+  // footer link
+  html += `<div class="home-foot"><a class="sidebar-link" href="https://github.com/EslamNabawy/linux101" target="_blank" rel="noopener">github.com/EslamNabawy/linux101 →</a></div>`;
+  return html;
+}
+
 function breadcrumbs(items) {
-  // items: [{label, view?, tab?}]
   if (!items || !items.length) return '';
+  // Home-first: auto-prepend Home crumb unless already on home
+  const isHome = state.tab==='home' && state.view==='home';
+  if(!isHome && items[0] && items[0].label!=='Home') items = [{label:'Home', tab:'home', view:'home'}].concat(items);
   const html = items.map((it, idx) => {
     const isLast = idx === items.length - 1;
     if (isLast || (!it.view && !it.tab)) return `<span class="crumb current" aria-current="page">${escapeHtml(it.label)}</span>`;
@@ -1572,43 +1690,33 @@ function renderLabBodyForDay(dayId){
 }
 
 function goToView(view) {
-  const m = VIEW_MAP[view] || { tab: 'linux101', view: 'cheatsheet' };
+  const m = VIEW_MAP[view] || { tab: 'home', view: 'home' };
   setView(m.tab, m.view);
 }
 
 async function setView(tab, view) {
+  tab = normalizeTab(tab); view = normalizeView(view);
   state.tab = tab;
   state.view = view;
   state.searchTerm = '';
-  pushRecent(view);
+  if(view!=='home' && tab!=='home') pushRecent(view);
   const input = document.getElementById('searchInput');
   if (input) input.value = '';
-  document.querySelectorAll('.tab').forEach(t => {
-    const isActive = t.dataset.tab === tab;
-    t.classList.toggle('active', isActive);
-    t.setAttribute('aria-selected', isActive ? 'true' : 'false');
-    t.tabIndex = isActive ? 0 : -1;
-  });
+  // home-first: update body class for layout, hide legacy tabs logic
+  document.body.classList.toggle('is-home', tab==='home' && view==='home');
+  document.body.classList.toggle('is-content', tab==='content' || tab==='linux101' || tab==='course' || tab==='quiz');
   scrollActiveTabIntoView();
   renderSubNav();
-  await render(); saveState(); closeSidebar();
+  await render(); saveState();
   try { syncHash(); } catch(_e) {}
   try { document.title = titleForView(tab, view); } catch(_e) {}
-  // Move focus to content for screen readers
+  window.scrollTo({top:0, behavior:'instant'});
   const contentEl = document.getElementById('content');
   if (contentEl) contentEl.focus({preventScroll:true});
 }
 
 function scrollActiveTabIntoView() {
-  const tabs = document.getElementById('tabs');
-  if (!tabs) return;
-  const active = tabs.querySelector('.tab.active');
-  if (!active) return;
-  const tabRect = active.getBoundingClientRect();
-  const tabsRect = tabs.getBoundingClientRect();
-  if (tabRect.left < tabsRect.left || tabRect.right > tabsRect.right) {
-    tabs.scrollTo({ left: active.offsetLeft - 8, behavior: 'smooth' });
-  }
+  // Home-first: no tab bar to scroll; no-op kept for legacy call sites
 }
 
 function switchTab(tab) {
@@ -1616,69 +1724,11 @@ function switchTab(tab) {
 }
 
 function renderSubNav() {
-  const nav = document.getElementById('subnav');
-  const eyebrow = document.getElementById('sidebarEyebrow');
-  if (eyebrow) {
-    const t = TABS.find(x=>x.id===state.tab);
-    eyebrow.textContent = t ? t.label : 'Navigate';
+  // Permanent sidebar removed in Home-first redesign. Keep stub for compatibility.
+  const layout = document.getElementById('layout');
+  if(layout){
+    layout.classList.toggle('is-home', state.tab==='home' && state.view==='home');
   }
-  if (!nav) return;
-
-  if (state.tab === 'course') {
-    let html = '';
-    COURSE_NAV.forEach(group => {
-      if (!group.sub) {
-        const active = group.id === state.view;
-        html += `<button class="subnav-item ${active ? 'active' : ''}" data-action="set-view" data-tab="course" data-view="${escapeHtml(group.id)}" ${active ? 'aria-current="page"' : ''}>${escapeHtml(group.label)}</button>`;
-        return;
-      }
-      html += `
-        <div class="nav-group nav-group-day">
-          <div class="nav-group-header" data-action="set-view" data-tab="course" data-view="${escapeHtml(group.sub[0].id)}" role="button" tabindex="0">
-            <span>${escapeHtml(group.label)}</span>
-            <svg class="group-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
-          </div>
-          <div class="nav-group-items">
-            ${group.sub.map(s => {
-              const active = s.id === state.view;
-              return `<button class="subnav-item ${active ? 'active' : ''}" data-action="set-view" data-tab="course" data-view="${escapeHtml(s.id)}" ${active ? 'aria-current="page"' : ''}>${escapeHtml(s.label)}</button>`;
-            }).join('')}
-          </div>
-        </div>`;
-    });
-    nav.innerHTML = html;
-    return;
-  }
-
-  const tab = TABS.find(t => t.id === state.tab);
-  if (!tab) return;
-  let itemsHtml = tab.views.map(v => {
-    const active = v.id === state.view;
-    const icon = v.icon && typeof ICONS !== 'undefined' && ICONS[v.icon] ? `<span class="subnav-icon" aria-hidden="true">${ICONS[v.icon]}</span>` : '';
-    return `<button class="subnav-item ${active ? 'active' : ''}" data-action="set-view" data-tab="${escapeHtml(tab.id)}" data-view="${escapeHtml(v.id)}" ${active ? 'aria-current="page"' : ''}>${icon}${escapeHtml(v.label)}</button>`;
-  }).join('');
-  // Linux101/Content sidebar: guides grouped by track (collapsible per track)
-  if ((tab.id === 'linux101' || tab.id === 'content') && typeof DATA !== 'undefined' && DATA.content && Array.isArray(DATA.content.sections)) {
-    const sections = DATA.content.sections.slice().sort((a, b) => (a.order || 0) - (b.order || 0));
-    const activeGuide = state.tab === 'content' ? state.view : null;
-    LIB_TRACKS.forEach(track => {
-      const list = sections.filter(s => s.track === track.id);
-      if (!list.length) return;
-      const trackActive = list.some(s => s.id === activeGuide);
-      // collapse every track except the one holding the active guide
-      const collapsed = state.collapsedGroups['__track__' + track.id] !== undefined
-        ? state.collapsedGroups['__track__' + track.id]
-        : !trackActive;
-      const items = list.map(s => {
-        const active = s.id === activeGuide;
-        const icon = ICONS[s.icon] || ICONS.file;
-        const read = state.readGuides[s.id];
-        return `<button class="subnav-item subnav-item--guide ${active ? 'active' : ''}" data-action="open-content-section" data-section="${escapeHtml(s.id)}" ${active ? 'aria-current="page"' : ''}><span class="subnav-icon" aria-hidden="true">${icon}</span><span class="subnav-guide-label">${escapeHtml(s.title)}</span>${read ? '<span class="subnav-guide-read" title="Read">✓</span>' : ''}</button>`;
-      }).join('');
-      itemsHtml += `<div class="nav-group nav-group-guides ${collapsed ? 'collapsed' : ''}${trackActive ? ' is-active-track' : ''}"><div class="nav-group-header" role="button" tabindex="0" data-action="toggle-guide-group" data-track="${escapeHtml(track.id)}"><span>${escapeHtml(track.label)}</span><svg class="group-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg></div><div class="nav-group-items">${items}</div></div>`;
-    });
-  }
-  nav.innerHTML = itemsHtml;
 }
 
 function pushRecent(view) {
@@ -3013,6 +3063,8 @@ async function render() {
   // Global search: any non-empty term searches across ALL sections.
   if (state.searchTerm.trim()) {
     html = renderSearchResults();
+  } else if (state.tab === 'home' && state.view==='home') {
+    html = renderHome();
   } else if (state.tab === 'linux101') {
     if (state.view === 'cheatsheet') html = renderMergedCheatSheet();
     else if (state.view === 'topicindex') html = renderTopicIndex();
@@ -3137,14 +3189,8 @@ document.getElementById('themeToggle').addEventListener('contextmenu', (e)=>{
   saveState();
 });
 
-document.getElementById('exportBtn').addEventListener('click', () => {
-  window.print();
-});
-
-document.getElementById('searchInput').addEventListener('input', (e) => {
-  state.searchTerm = e.target.value;
-  render();
-});
+try{ document.getElementById('exportBtn')?.addEventListener('click', () => { window.print(); }); }catch(e){}
+try{ document.getElementById('searchInput')?.addEventListener('input', (e) => { state.searchTerm = e.target.value; render(); }); }catch(e){}
 
 // Guides hub: live filter (delegated — the input re-renders with the view)
 document.addEventListener('input', (e) => {
@@ -3253,50 +3299,11 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-function openSidebar() {
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('overlay');
-  const btn = document.getElementById('menuBtn');
-  if (!sidebar || !overlay) return;
-  const isMobile = window.innerWidth <= 860;
-  sidebar.classList.add('open');
-  overlay.classList.add('show');
-  overlay.setAttribute('aria-hidden','false');
-  if (btn) btn.setAttribute('aria-expanded','true');
-  document.body.style.overflow = 'hidden';
-  if (isMobile) {
-    // mobile: bottom drawer - no overflow hidden, just reveal
-    sidebar.style.transform = 'translateY(0)';
-    overlay.style.display = 'none';
-  } else {
-    // desktop: overlay behavior
-    overlay.style.display = '';
-  }
-  // focus first item in sidebar
-  const first = sidebar.querySelector('button, a, [tabindex]:not([tabindex="-1"])');
-  if (first) setTimeout(()=>first.focus(), 50);
-}
-function closeSidebar() {
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('overlay');
-  const btn = document.getElementById('menuBtn');
-  if (!sidebar || !overlay) return;
-  const isMobile = window.innerWidth <= 860;
-  if (isMobile) {
-    // mobile: bottom drawer - hide
-    sidebar.style.transform = 'translateY(100%)';
-    overlay.style.display = '';
-  } else {
-    // desktop: overlay behavior
-    sidebar.classList.remove('open');
-    overlay.classList.remove('show');
-    overlay.setAttribute('aria-hidden','true');
-    if (btn) btn.setAttribute('aria-expanded','false');
-    document.body.style.overflow = '';
-  }
-}
-document.getElementById('menuBtn').addEventListener('click', openSidebar);
-document.getElementById('overlay').addEventListener('click', closeSidebar);
+function openSidebar() {}
+function closeSidebar() {}
+// legacy menuBtn/overlay listeners guarded
+try{ const mb=document.getElementById('menuBtn'); if(mb) mb.addEventListener('click', openSidebar); }catch(e){}
+try{ const ov=document.getElementById('overlay'); if(ov) ov.addEventListener('click', closeSidebar); }catch(e){}
 // Close on ESC
 document.addEventListener('keydown', (e)=>{
   if(e.key==='Escape'){
@@ -3496,6 +3503,8 @@ document.addEventListener('click', async (e) => {
     render();
     return;
   }
+  if (a === 'go-home') { goHome(); return; }
+  if (a === 'open-spotlight') { openSpotlight(); return; }
   if (a === 'set-view') { setView(btn.dataset.tab, btn.dataset.view); return; }
   if (a === 'go-view') { goToView(btn.dataset.view); return; }
   if (a === 'open-content-section') { openContentSection(btn.dataset.section); return; }
@@ -3648,10 +3657,14 @@ document.addEventListener('click', (e) => {
   });
   renderSubNav();
   render();
-  // Do NOT auto-force hash on first load without hash — keep clean URL for fresh visits.
-  // Hash will be set on first user navigation via syncHash() in setView().
-  // Only sync if hash already exists to normalize it.
-  try { if (location.hash) { const p = parseHash(); if (!p || p.tab !== state.tab || p.view !== state.view) syncHash(); } } catch(_e) {}
+  // Home-first: ensure default route is #home/home if no hash
+  if(!location.hash){
+    state.tab='home'; state.view='home';
+    try{ syncHash(); }catch(e){}
+  } else {
+    try { const p = parseHash(); if (!p || p.tab !== state.tab || p.view !== state.view) syncHash(); } catch(_e) {}
+  }
+  document.body.classList.toggle('is-home', state.tab==='home' && state.view==='home');
   // hashchange listener for back/forward & direct links
   window.addEventListener('hashchange', async () => {
     if (_ignoreHash) return;
