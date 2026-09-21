@@ -1,13 +1,22 @@
-// router.js — hash routing for GitHub Pages
+// router.js — hash routing for GitHub Pages (kept in sync with app.js canonical — Section 25)
 export const TABS = [
+  { id: 'home', label: 'Home', views: [{ id: 'home', label: 'Home' }] },
   { id: 'general', label: 'General Knowledge', views: [
     { id: 'cheatsheet', label: 'Cheat Sheet' },
     { id: 'topicindex', label: 'Topic Index' },
     { id: 'exercises', label: 'Practical Exercises' },
     { id: 'roadmap7', label: 'Course Roadmap' }
   ]},
+  { id: 'linux101', label: 'Linux101', views: [
+    { id: 'cheatsheet', label: 'Cheat Sheet' },
+    { id: 'topicindex', label: 'Topic Index' },
+    { id: 'exercises', label: 'Exercises' },
+    { id: 'roadmap7', label: 'Roadmap' },
+    { id: 'resources', label: 'Resources' }
+  ]},
+  { id: 'content', label: 'Guides', views: [{ id: 'library', label: 'All Guides' }] },
   { id: 'course', label: 'NTI Linux Course', views: [
-    { id: 'roadmap', label: 'Roadmap (5-day)' },
+    { id: 'roadmap', label: 'Roadmap (3-day)' },
     { id: 'day1', label: 'Day 1' }, { id: 'day2', label: 'Day 2' }, { id: 'day3', label: 'Day 3' },
     { id: 'day4', label: 'Day 4' }, { id: 'day5', label: 'Day 5' }
   ]},
@@ -15,13 +24,16 @@ export const TABS = [
   { id: 'quiz', label: 'Flashcards & Quizzes', views: [ { id: 'quiz', label: 'Flashcards & Quiz' } ] }
 ];
 export const VIEW_MAP = {
-  'cheatsheet': { tab: 'general', view: 'cheatsheet' },
-  'commandsBank': { tab: 'general', view: 'cheatsheet' },
-  'topicindex': { tab: 'general', view: 'topicindex' },
-  'exercises': { tab: 'general', view: 'exercises' },
-  'course': { tab: 'general', view: 'roadmap7' },
+  'home': { tab: 'home', view: 'home' },
+  'cheatsheet': { tab: 'linux101', view: 'cheatsheet' },
+  'commandsBank': { tab: 'linux101', view: 'cheatsheet' },
+  'topicindex': { tab: 'linux101', view: 'topicindex' },
+  'exercises': { tab: 'linux101', view: 'exercises' },
+  'course': { tab: 'linux101', view: 'roadmap7' },
+  'roadmap7': { tab: 'linux101', view: 'roadmap7' },
+  'resources': { tab: 'linux101', view: 'resources' },
   'rh124': { tab: 'course', view: 'day1-content' },
-  'links': { tab: 'course', view: 'day1-content' },
+  'links': { tab: 'linux101', view: 'resources' },
   'notes-rahma': { tab: 'course', view: 'day1-notes-rahma' },
   'notes-michael': { tab: 'course', view: 'day1-notes-michael' },
   'notes-hager': { tab: 'course', view: 'day1-notes-hager' },
@@ -29,7 +41,8 @@ export const VIEW_MAP = {
   'notes-tarek': { tab: 'course', view: 'day2-notes-tarek' },
   'lab': { tab: 'course', view: 'day1-lab' },
   'lab2': { tab: 'course', view: 'day2-lab' },
-  'quiz': { tab: 'quiz', view: 'quiz' }
+  'quiz': { tab: 'quiz', view: 'quiz' },
+  'library': { tab: 'content', view: 'library' }
 };
 export const COURSE_NAV = [
   { id: 'roadmap', label: 'Roadmap (3-day)' },

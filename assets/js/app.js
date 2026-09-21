@@ -971,11 +971,11 @@ async function getContentLibrary() {
   if (_libraryFetch) return _libraryFetch;
   _libraryFetch = (async () => {
     try {
-      const r = await fetch('assets/data/content-library.json?v=34');
+      const r = await fetch('assets/data/content-library.json?v=35');
       if (r.ok) { _libraryCache = await r.json(); return _libraryCache; }
     } catch (_e) {}
     try {
-      await loadScriptFallback('assets/js/data-library.js?v=34');
+      await loadScriptFallback('assets/js/data-library.js?v=35');
       if (window.DATA_CONTENT_LIBRARY) { _libraryCache = window.DATA_CONTENT_LIBRARY; return _libraryCache; }
     } catch (_e) {}
     return null;
@@ -992,11 +992,11 @@ async function getCmdGuides() {
   if (_cmdGuidesFetch) return _cmdGuidesFetch;
   _cmdGuidesFetch = (async () => {
     try {
-      const r = await fetch('assets/data/cmd-guides.json?v=34');
+      const r = await fetch('assets/data/cmd-guides.json?v=35');
       if (r.ok) { _cmdGuidesCache = await r.json(); return _cmdGuidesCache; }
     } catch (_e) {}
     try {
-      await loadScriptFallback('assets/js/data-cmd-guides.js?v=34');
+      await loadScriptFallback('assets/js/data-cmd-guides.js?v=35');
       if (window.DATA_CMD_GUIDES) { _cmdGuidesCache = window.DATA_CMD_GUIDES; return _cmdGuidesCache; }
     } catch (_e) {}
     _cmdGuidesCache = {};
@@ -1348,6 +1348,52 @@ const TABS = [
     { id: 'library', label: 'All Guides', icon: 'folder' }
   ]}
 ];
+// Central navigation — single source of truth (Section 5)
+const NAVIGATION = [
+  { id: 'home', label: 'Home', route: '#home/home', tab: 'home', view: 'home' },
+  { id: 'cheatsheet', label: 'Cheat Sheet', route: '#linux101/cheatsheet', tab: 'linux101', view: 'cheatsheet' },
+  { id: 'topics', label: 'Topics', route: '#content/library', tab: 'content', view: 'library' },
+  { id: 'exercises', label: 'Exercises', route: '#linux101/exercises', tab: 'linux101', view: 'exercises' },
+  { id: 'topicindex', label: 'Topic Index', route: '#linux101/topicindex', tab: 'linux101', view: 'topicindex' },
+  { id: 'roadmap', label: 'Roadmap', route: '#linux101/roadmap7', tab: 'linux101', view: 'roadmap7' },
+  { id: 'resources', label: 'Resources', route: '#linux101/resources', tab: 'linux101', view: 'resources' },
+  { id: 'nti', label: 'NTI Course', route: '#course/roadmap', tab: 'course', view: 'roadmap' },
+  { id: 'nti-day1', label: 'Day 1', route: '#course/day1-content', tab: 'course', view: 'day1-content' },
+  { id: 'nti-day2', label: 'Day 2', route: '#course/day2-content', tab: 'course', view: 'day2-content' },
+  { id: 'nti-day3', label: 'Day 3', route: '#course/day3-content', tab: 'course', view: 'day3-content' },
+  { id: 'labs', label: 'Labs', route: '#course/day1-lab', tab: 'course', view: 'day1-lab' },
+  { id: 'flashcards', label: 'Flashcards', route: '#quiz/quiz', tab: 'quiz', view: 'quiz' },
+  { id: 'quiz', label: 'Quiz', route: '#quiz/quiz', tab: 'quiz', view: 'quiz' }
+];
+// Route helpers — prefer over scattering strings (Section 22)
+const routes = {
+  home: () => '#home/home',
+  cheatsheet: () => '#linux101/cheatsheet',
+  topic: (id) => `#content/${encodeURIComponent(id)}`,
+  topics: () => '#content/library',
+  exercises: () => '#linux101/exercises',
+  topicindex: () => '#linux101/topicindex',
+  roadmap: () => '#linux101/roadmap7',
+  resources: () => '#linux101/resources',
+  nti: () => '#course/roadmap',
+  ntiDay: (day) => `#course/day${day}-content`,
+  lab: (day) => `#course/day${day}-lab`,
+  quiz: () => '#quiz/quiz',
+  flashcards: () => '#quiz/quiz',
+  guide: (id) => `#content/${encodeURIComponent(id)}`
+};
+// Unified navigate — single entry for internal routing (Section 6)
+function navigate(route) {
+  if (!route) return;
+  // external? let browser handle
+  if (/^https?:\/\//.test(route)) { window.open(route, '_blank', 'noopener'); return; }
+  // normalize route string -> tab/view then delegate
+  const h = route.startsWith('#') ? route : `#${route}`;
+  const saved = location.hash;
+  if (h === saved) { const p = parseHash(); if (p) setView(p.tab, p.view); return; }
+  location.hash = h;
+}
+
 const LEGACY_TABS = ['general', 'links'];
 const VIEW_MAP = {
   'home': { tab: 'home', view: 'home' },
@@ -3087,6 +3133,26 @@ function renderCourseDayLab(dayId) {
   return html;
 }
 
+function render404(requested) {
+  return `
+    ${breadcrumbs([{label:'Home', tab:'home', view:'home'}, {label:'Not Found'}])}
+    <div class="no-results" style="max-width:560px;margin:32px auto;text-align:center">
+      ${emptyVisual('search')}
+      <h3>404 · Page not found</h3>
+      <p>The page <code>${escapeHtml(requested||location.hash||'')}</code> doesn't exist.</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px">
+        <button class="toggle-complete" data-action="go-home">${ICONS.check} Return Home</button>
+        <button class="chip" data-action="open-spotlight">${ICONS.search} Search Linux101</button>
+      </div>
+      <div class="links-section" style="margin-top:24px;text-align:left">
+        <h3>Try instead</h3>
+        <div class="topic-links">
+          ${NAVIGATION.slice(1,7).map(n=>`<button class="topic-link" data-action="set-view" data-tab="${n.tab}" data-view="${n.view}">${escapeHtml(n.label)}</button>`).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
 // ===== HELPFUL LINKS (now inside Linux101) =====
 function renderHelpfulLinks() {
   const links = DATA.helpfulLinks || [];
@@ -3117,6 +3183,26 @@ function renderHelpfulLinks() {
 async function render() {
   const content = document.getElementById('content');
   let html;
+
+  // Validate current route — show 404 for invalid (Section 17)
+  const isValidRoute = (() => {
+    if (state.tab === 'home' && state.view === 'home') return true;
+    if (VIEW_MAP[state.view]) return true;
+    const tabObj = TABS.find(x=>x.id===state.tab);
+    if (tabObj && tabObj.views.some(v=>v.id===state.view)) return true;
+    if (state.tab==='course' && COURSE_NAV.some(g=>g.id===state.view || (g.sub && g.sub.some(s=>s.id===state.view)))) return true;
+    if (state.tab==='content' && state.view!=='library' && typeof DATA!=='undefined' && DATA.content && DATA.content.sections.some(s=>s.id===state.view)) return true;
+    if (state.tab==='content' && state.view==='library') return true;
+    if (COURSE_RENDER[state.view]) return true;
+    return false;
+  })();
+  if (!isValidRoute && !state.searchTerm.trim()) {
+    html = render404(`${state.tab}/${state.view}`);
+    content.innerHTML = html;
+    content.classList.remove('fade-in'); void content.offsetWidth; content.classList.add('fade-in');
+    try{ document.title = '404 — Linux101'; }catch(_e){}
+    return;
+  }
 
   // Lazy-load Course data only when needed (saves 225KB for cheat-sheet-only users)
   const needsNti = state.tab === 'course' || state.tab === 'quiz' || !!state.searchTerm.trim();
@@ -3692,10 +3778,14 @@ document.addEventListener('click', (e) => {
 
 // ===== INIT =====
 (function init() {
-  // hash routing overrides savedState (shareable links)
+  // hash routing overrides savedState (shareable links) — invalid hash shows 404
   try {
     const parsed = parseHash();
     if (parsed) { state.tab = parsed.tab; state.view = parsed.view; }
+    else if (location.hash && location.hash.length > 1) {
+      const raw = location.hash.replace(/^#\/?/, '').split('?')[0].split('/')[0];
+      state.tab = raw || 'invalid'; state.view = location.hash.slice(1);
+    }
   } catch(_e) {}
   document.documentElement.dataset.theme = state.theme;
   document.getElementById('themeIcon').outerHTML = themeIconSvg(state.theme);
@@ -3730,11 +3820,15 @@ document.addEventListener('click', (e) => {
     try { const p = parseHash(); if (!p || p.tab !== state.tab || p.view !== state.view) syncHash(); } catch(_e) {}
   }
   document.body.classList.toggle('is-home', state.tab==='home' && state.view==='home');
-  // hashchange listener for back/forward & direct links
+  // hashchange listener for back/forward & direct links — invalid renders 404
   window.addEventListener('hashchange', async () => {
     if (_ignoreHash) return;
     const p = parseHash();
-    if (!p) return;
+    if (!p) {
+      const raw = location.hash.replace(/^#\/?/, '').split('?')[0];
+      state.tab = raw.split('/')[0] || 'invalid'; state.view = raw;
+      await render(); return;
+    }
     if (p.tab === state.tab && p.view === state.view) return;
     state.tab = p.tab; state.view = p.view;
     state.searchTerm = '';
@@ -3857,11 +3951,11 @@ document.addEventListener('click', (e) => {
       collapseBtn.setAttribute('aria-label', isC?'Expand sidebar':'Collapse sidebar');
     });
   }
-  // logo keyboard activation
+  // logo keyboard activation — always Home (Section 8-9)
   const logoEl = document.querySelector('.logo');
   if(logoEl){
     logoEl.addEventListener('keydown', (e)=>{
-      if(e.key==='Enter' || e.key===' '){ e.preventDefault(); switchTab('linux101'); }
+      if(e.key==='Enter' || e.key===' '){ e.preventDefault(); goHome(); }
     });
   }
   // spotlight backdrop click already via data-action; also close on overlay

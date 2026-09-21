@@ -3203,6 +3203,10 @@ a.ext-modal-cta svg{ width:15px; height:15px; }
   .cl-pn{ flex-direction:column; }
   .cl-pn-spacer{ display:none; }
 }
+.footer-nav{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-bottom:10px; }
+.footer-nav button, .footer-nav a{ background:none; border:1px solid var(--border); border-radius:999px; padding:6px 10px; font-size:12px; color:var(--text-muted); cursor:pointer; text-decoration:none; font-family:var(--font-sans); }
+.footer-nav button:hover, .footer-nav a:hover{ border-color:var(--accent); color:var(--accent); background:var(--accent-dim); }
+.site-footer{ flex-direction:column; }
 /* Roadmap path visual — technical progression */
 .roadmap-path{ display:flex; align-items:center; gap:0; padding:12px 8px 16px; overflow-x:auto; scrollbar-width:thin; }
 .roadmap-line{ display:none; }
