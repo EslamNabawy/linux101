@@ -1,7 +1,7 @@
 ---
 title: Linux Session Revision Sheet - Basics, Navigation, Files, Links
 author: UNKNOWN — set manually
-category: NTI Linux Course
+category: Linux Course
 tags: [linux-basics, filesystem, navigation, grep, links, permissions]
 source: AIOPS_Session1.md
 ---

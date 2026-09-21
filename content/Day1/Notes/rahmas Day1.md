@@ -1,7 +1,7 @@
 ---
 title: Linux Administration & Fundamentals Notes
 author: Rahmas
-category: NTI Linux Course
+category: Linux Course
 tags: [system-architecture, virtual-machines, filesystem, file-management, links, grep]
 source: 1787225668706_Rahmas.md
 ---

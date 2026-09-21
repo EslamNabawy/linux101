@@ -851,7 +851,7 @@ function renderNotesBody(authorKey) {
   const readingTime = Math.max(1, Math.round(totalWords / 180));
   const sectionCount = note.sections.length;
   const dayLabel = note.day ? `Day ${note.day}` : 'Contributor';
-  let html = breadcrumbs([{label:'NTI Linux', tab:'course'}, {label: dayLabel, tab:'course', view: note.day===1?'day1-content': note.day===2?'day2-content':'day1-content'}, {label: note.author + "'s Notes"}]);
+  let html = breadcrumbs([{label:'Course', tab:'course'}, {label: dayLabel, tab:'course', view: note.day===1?'day1-content': note.day===2?'day2-content':'day1-content'}, {label: note.author + "'s Notes"}]);
   html += `<div class="note-page note-page--enhanced">`;
   // Hero
   html += `
@@ -925,7 +925,7 @@ function goToNoteSection(authorKey, secId) {
 // ===== RENDER LAB (body) =====
 function renderLabBody() {
   const lab = DATA.lab;
-  let html = breadcrumbs([{label:'NTI Linux', tab:'course'}, {label:'Day 1', tab:'course', view:'day1-content'}, {label:'Lab Task'}]);
+  let html = breadcrumbs([{label:'Course', tab:'course'}, {label:'Day 1', tab:'course', view:'day1-content'}, {label:'Lab Task'}]);
   html += `<h1 class="view-title">${escapeHtml(lab.title || 'Lab Task')}</h1>`;
   html += `<p class="view-subtitle">${escapeHtml(lab.subtitle || 'Hands-on task for this day.')}</p>`;
   const total = lab.tasks.length;
@@ -1331,7 +1331,7 @@ const TABS = [
     { id: 'roadmap7', label: 'Roadmap', icon: 'map' },
     { id: 'resources', label: 'Resources', icon: 'link' }
   ]},
-  { id: 'course', label: 'NTI Linux', views: [
+  { id: 'course', label: 'Course', views: [
     { id: 'roadmap', label: 'Roadmap', icon: 'map' },
     { id: 'day1', label: 'Day 1', icon: 'file' },
     { id: 'day2', label: 'Day 2', icon: 'file' },
@@ -1425,7 +1425,7 @@ function titleForView(tab, view) {
     'exercises': 'Exercises',
     'roadmap7': 'Roadmap',
     'resources': 'Resources',
-    'roadmap': 'NTI Roadmap',
+    'roadmap': 'Course Roadmap',
     'day1-content': 'Day 1 — Content',
     'day1-notes-rahma': "Rahma's Notes",
     'day1-notes-michael': "Michael's Notes",
@@ -1448,8 +1448,8 @@ function titleForView(tab, view) {
   return `${label} — EslamOs`;
 }
 
-// NTI Course sub-navigation: each day splits into Content / Notes / Lab sub-pages.
-// Fully replaced from NTI Course Content Resources (single source of truth)
+// Course sub-navigation: each day splits into Content / Notes / Lab sub-pages.
+// Fully replaced from Course Content Resources (single source of truth)
 const COURSE_NAV = [
   { id: 'roadmap', label: 'Roadmap (3-day)' },
   { id: 'day1', label: 'Day 1 — RHEL & Files', sub: [
@@ -1498,7 +1498,7 @@ function breadcrumbs(items) {
 }
 function tabDefaultView(tab) { const t = TABS.find(x => x.id === tab); return t ? t.views[0].id : 'cheatsheet'; }
 
-// ===== NTI CANONICAL RENDER (single source of truth) =====
+// ===== COURSE CANONICAL RENDER (single source of truth) =====
 function renderNTICanonical(dayId){
   const day = (DATA.nti && DATA.nti.days && DATA.nti.days[dayId]) || null;
   if(!day){
@@ -1507,12 +1507,12 @@ function renderNTICanonical(dayId){
   }
   // Day3 coming soon has single section
   const isComingSoon = day.title && day.title.toLowerCase().includes('coming soon');
-  let html = breadcrumbs([{label:'NTI Linux', tab:'course'}, {label: dayId==='day1'?'Day 1': dayId==='day2'?'Day 2':'Day 3', tab:'course', view: dayId+'-content'}, {label: isComingSoon?'Coming Soon':'Content'}]);
+  let html = breadcrumbs([{label:'Course', tab:'course'}, {label: dayId==='day1'?'Day 1': dayId==='day2'?'Day 2':'Day 3', tab:'course', view: dayId+'-content'}, {label: isComingSoon?'Coming Soon':'Content'}]);
   // Override for day3: simpler breadcrumb
   if(dayId==='day3'){
-    html = breadcrumbs([{label:'NTI Linux', tab:'course'}, {label:'Day 3'}]);
+    html = breadcrumbs([{label:'Course', tab:'course'}, {label:'Day 3'}]);
   } else {
-    html = breadcrumbs([{label:'NTI Linux', tab:'course'}, {label:'Roadmap', tab:'course', view:'roadmap'}, {label: dayId==='day1'?'Day 1':'Day 2'}]);
+    html = breadcrumbs([{label:'Course', tab:'course'}, {label:'Roadmap', tab:'course', view:'roadmap'}, {label: dayId==='day1'?'Day 1':'Day 2'}]);
   }
   html += `<h1 class="view-title">${escapeHtml(day.title)}</h1>`;
   if(day.subtitle) html += `<p class="view-subtitle">${escapeHtml(day.subtitle)}</p>`;
@@ -1549,14 +1549,14 @@ function renderNTICanonical(dayId){
 }
 
 function renderLabBodyForDay(dayId){
-  // Prefer nti.labs, fallback to DATA.labs or DATA.lab
+  // Prefer Course.labs, fallback to DATA.labs or DATA.lab
   const lab = (DATA.nti && DATA.nti.labs && DATA.nti.labs[dayId]) || (DATA.labs && DATA.labs[dayId]) || (dayId==='day1' ? DATA.lab : null);
   if(!lab || !lab.tasks || !lab.tasks.length){
     // fallback to generic placeholder
     return renderCourseDayLab(dayId);
   }
   const num = dayId.replace('day','');
-  let html = breadcrumbs([{label:'NTI Linux', tab:'course'}, {label:'Day ' + num, tab:'course', view: dayId+'-content'}, {label:'Lab ' + num}]);
+  let html = breadcrumbs([{label:'Course', tab:'course'}, {label:'Day ' + num, tab:'course', view: dayId+'-content'}, {label:'Lab ' + num}]);
   html += `<h1 class="view-title">${escapeHtml(lab.title || ('Lab ' + num))}</h1>`;
   html += `<p class="view-subtitle">${escapeHtml(lab.subtitle || 'Hands-on tasks. Tick when done.')}</p>`;
   const total = lab.tasks.length;
@@ -1803,12 +1803,12 @@ function renderSearchResults() {
       if (hay.includes(term)) results.push({ section: 'Lab 1', title: task.title, desc: task.objective });
     });
   }
-  // Search new NTI canonical days (single source of truth)
+  // Search new COURSE CANONICAL days (single source of truth)
   if (DATA.nti && DATA.nti.days) {
     Object.keys(DATA.nti.days).forEach(dayId=>{
       const day = DATA.nti.days[dayId];
       if(!day || !day.sections) return;
-      const dayLabel = dayId==='day1'?'NTI Day 1': dayId==='day2'?'NTI Day 2':'NTI Day 3';
+      const dayLabel = dayId==='day1'?'Day 1': dayId==='day2'?'Day 2':'Day 3';
       day.sections.forEach(sec=>{
         const hay = `${day.title} ${day.subtitle||''} ${sec.title} ${getNoteText(sec.blocks)}`.toLowerCase();
         if(hay.includes(term)) results.push({ section: dayLabel, title: sec.title, desc: sec.blocks.find(b=>b.t==='text')?.html?.replace(/<[^>]+>/g,'').slice(0,160) || 'See canonical content' });
@@ -1829,7 +1829,7 @@ function renderSearchResults() {
     if(DATA.nti.flashcards){
       DATA.nti.flashcards.forEach(fc=>{
         const hay = `${fc.q} ${fc.a}`.toLowerCase();
-        if(hay.includes(term)) results.push({ section: 'Flashcards NTI', title: fc.q.slice(0,60), desc: fc.a.slice(0,140) });
+        if(hay.includes(term)) results.push({ section: 'Flashcards Course', title: fc.q.slice(0,60), desc: fc.a.slice(0,140) });
       });
     }
   }
@@ -1889,14 +1889,14 @@ function toggleSearchGroup(sec) {
 
 // ===== QUIZ & FLASHCARDS =====
 function buildQuizDeck() {
-  // Prefer NTI Day1+Day2 flashcards (single source of truth) if present; fallback to commandsBank
+  // Prefer Course Day1+Day2 flashcards (single source of truth) if present; fallback to commandsBank
   const ntiCards = (DATA.nti && DATA.nti.flashcards) || DATA.flashcards;
   if (ntiCards && ntiCards.length) {
     // ntiCards are {q,a} from notes; map to flashcard shape
     return ntiCards.map(c => ({
       front: c.q || c.front,
       back: c.a || c.back,
-      category: c.category || 'NTI'
+      category: c.category || 'Course'
     })).filter(c=> c.front && c.back);
   }
   return DATA.commandsBank.map(c => ({
@@ -1913,7 +1913,7 @@ function renderQuiz() {
   let html = `
     ${breadcrumbs([{label:'Practice Lab', tab:'quiz'}])}
     <h1 class="view-title">Practice Lab — Drill & Quiz</h1>
-    <p class="view-subtitle">Flip the cards to memorize, then take the quiz. Day 1 & Day 2 NTI material — ${total} Q&A from Rahma, Michael, Hager, Sagda & Tarek notes.</p>
+    <p class="view-subtitle">Flip the cards to memorize, then take the quiz. Day 1 & Day 2 course material — ${total} Q&A from Rahma, Michael, Hager, Sagda & Tarek notes.</p>
     <div class="progress-bar">
       <div class="progress-bar-header">
         <span>Best Quiz Score</span>
@@ -2173,7 +2173,7 @@ function spotlightCollect(term){
       const dayLabel = dayId==='day1'?'Day 1':dayId==='day2'?'Day 2':'Day 3';
       day.sections.forEach(sec=>{
         const hay = `${day.title} ${sec.title} ${getNoteText(sec.blocks)}`.toLowerCase();
-        if(hay.includes(t)) add('NTI '+dayLabel, sec.title, 'Canonical content', dayId+'-content', 'course', null);
+        if(hay.includes(t)) add(dayLabel, sec.title, 'Canonical content', dayId+'-content', 'course', null);
       });
     });
     if(DATA.nti.labs){
@@ -2867,13 +2867,13 @@ function enableChipScroll(){
   });
 }
 
-// ===== NTI Linux =====
+// ===== Course =====
 function renderNTIRoadmap() {
   const days = DATA.course.days || [];
   const readySet = new Set(['day1','day2']);
   let html = `
-    ${breadcrumbs([{label:'NTI Linux', tab:'course'}, {label:'Roadmap'}])}
-    <h1 class="view-title">NTI Linux — Roadmap</h1>
+    ${breadcrumbs([{label:'Course', tab:'course'}, {label:'Roadmap'}])}
+    <h1 class="view-title">Course — Roadmap</h1>
     <p class="view-subtitle">${days.length}-day Red Hat (RH124-style) outline — Day 1 & Day 2 live, Day 3 coming soon — plus the 7-module practical track.</p>
     <h2 class="day-part-title">${days.length}-Day Course Outline</h2>
     <div class="roadmap-grid">
@@ -2902,8 +2902,8 @@ function renderDayPlaceholder(view) {
   const day = (DATA.course.days || []).find(d => d.id === view.replace('-content','').replace('-lab',''));
   const topics = day ? day.topics : [];
   return `
-    ${breadcrumbs([{label:'NTI Linux', tab:'course'}, {label:'Roadmap', tab:'course', view:'roadmap'}, {label:'Day ' + dayNum}])}
-    <h1 class="view-title">NTI Linux — Day ${dayNum}</h1>
+    ${breadcrumbs([{label:'Course', tab:'course'}, {label:'Roadmap', tab:'course', view:'roadmap'}, {label:'Day ' + dayNum}])}
+    <h1 class="view-title">Course — Day ${dayNum}</h1>
     ${day ? `<p class="view-subtitle">${escapeHtml(day.title)}</p>` : ''}
     <div class="no-results">
       ${ICONS.file}
@@ -2920,8 +2920,8 @@ function renderDayPlaceholder(view) {
 
 function renderDay1Content() {
   return `
-    ${breadcrumbs([{label:'NTI Linux', tab:'course'}, {label:'Roadmap', tab:'course', view:'roadmap'}, {label:'Day 1'}])}
-    <h1 class="view-title">NTI Linux — Day 1</h1>
+    ${breadcrumbs([{label:'Course', tab:'course'}, {label:'Roadmap', tab:'course', view:'roadmap'}, {label:'Day 1'}])}
+    <h1 class="view-title">Course — Day 1</h1>
     <p class="view-subtitle">RH124 summary and the soft vs hard links guide.</p>
     <div class="day-part">
       <h2 class="day-part-title">RH124 — Day 1 Summary</h2>
@@ -2938,8 +2938,8 @@ function renderCourseDayContent(dayId) {
   const day = (DATA.course.days || []).find(d => d.id === dayId);
   if (!day) return renderDayPlaceholder(dayId);
   const num = dayId.replace('day', '');
-  let html = breadcrumbs([{label:'NTI Linux', tab:'course'}, {label:'Roadmap', tab:'course', view:'roadmap'}, {label:'Day ' + num}]);
-  html += `<h1 class="view-title">NTI Linux — Day ${num}</h1>`;
+  let html = breadcrumbs([{label:'Course', tab:'course'}, {label:'Roadmap', tab:'course', view:'roadmap'}, {label:'Day ' + num}]);
+  html += `<h1 class="view-title">Course — Day ${num}</h1>`;
   html += `<p class="view-subtitle">${escapeHtml(day.title)}</p>`;
   (day.content || []).forEach(sec => {
     html += `<div class="day-part"><h2 class="day-part-title">${escapeHtml(sec.title)}</h2>`;
@@ -2958,7 +2958,7 @@ function renderCourseDayContent(dayId) {
 function renderCourseDayLab(dayId) {
   const day = (DATA.course.days || []).find(d => d.id === dayId);
   const num = dayId.replace('day', '');
-  let html = breadcrumbs([{label:'NTI Linux', tab:'course'}, {label:'Day ' + num, tab:'course', view: dayId + '-content'}, {label:'Lab Task'}]);
+  let html = breadcrumbs([{label:'Course', tab:'course'}, {label:'Day ' + num, tab:'course', view: dayId + '-content'}, {label:'Lab Task'}]);
   html += `<h1 class="view-title">Lab · Day ${num}</h1>`;
   html += `<p class="view-subtitle">${escapeHtml(day ? day.title : 'Practice tasks')}</p>`;
   html += `<div class="task-card"><div class="task-header"><span class="task-tag">Practice</span><span class="task-title">${escapeHtml('Hands-on tasks for ' + (day ? day.title : ('Day ' + num)))}</span></div>`;
@@ -2978,7 +2978,7 @@ function renderHelpfulLinks() {
   let html = `
     ${breadcrumbs([{label:'Linux101', tab:'linux101'}, {label:'Resources'}])}
     <h1 class="view-title">Resources</h1>
-    <p class="view-subtitle">Curated external resources to support Linux101 &amp; NTI Linux.</p>
+    <p class="view-subtitle">Curated external resources to support Linux101 &amp; Course.</p>
     ${!links.length ? `<div class="no-results">${ICONS.link}<h3>No links yet</h3><p>Add resources to DATA.helpfulLinks.</p></div>` : ''}
     <div class="link-card-grid">
   `;
@@ -3003,7 +3003,7 @@ async function render() {
   const content = document.getElementById('content');
   let html;
 
-  // Lazy-load NTI data only when needed (saves 225KB for cheat-sheet-only users)
+  // Lazy-load Course data only when needed (saves 225KB for cheat-sheet-only users)
   const needsNti = state.tab === 'course' || state.tab === 'quiz' || !!state.searchTerm.trim();
   if (needsNti && (typeof DATA === 'undefined' || !DATA.nti || !DATA.nti.days)) {
     content.innerHTML = `<div class="no-results"><p>Loading…</p></div>`;
@@ -3603,7 +3603,7 @@ document.addEventListener('click', (e) => {
   const author = a.dataset.author;
   const sec = a.dataset.sec;
   if (author && sec) {
-    // decide if it's NTI or note
+    // decide if it's Course or note
     if (author === '__lib__') {
       const target = document.getElementById('lib-' + state.view + '-' + sec);
       if (target) target.scrollIntoView({behavior:'smooth', block:'start'});

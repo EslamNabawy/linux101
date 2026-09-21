@@ -1,7 +1,7 @@
 ---
 title: Linux Fundamentals - Bash, Redirection, Vim, and Pipelines
 author: UNKNOWN — set manually
-category: NTI Linux Course
+category: Linux Course
 tags: [bash, redirection, vim, pipelines, manual-pages, shell-variables]
 source: notes.md
 ---

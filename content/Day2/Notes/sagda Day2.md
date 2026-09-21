@@ -1,7 +1,7 @@
 ---
 title: Day 2 — Man Pages, Redirection, Pipelines, Vim, Variables, and User Types
 author: Sagda
-category: NTI Linux Course
+category: Linux Course
 tags: [man-pages, redirection, pipelines, vim, shell-variables, users, sudo]
 source: Sagda.pdf
 ---

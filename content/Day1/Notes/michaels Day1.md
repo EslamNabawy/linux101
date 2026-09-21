@@ -1,7 +1,7 @@
 ---
 title: Comprehensive Linux Commands & File System Notes
 author: Michaels
-category: NTI Linux Course
+category: Linux Course
 tags: [navigation, ls, file-management, links, grep, cut]
 source: Michaels.md
 ---
