@@ -21,3 +21,17 @@ NTI Course/linux Notes/
 # Node (if build added)
 node_modules/
 dist/
+
+# Secrets — never commit real credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*service-account*.json
+*credentials*.json
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+*.tfvars
+!*.tfvars.example
